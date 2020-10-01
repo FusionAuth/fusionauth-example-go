@@ -4,22 +4,21 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	
 
+	"github.com/thanhpk/randstr"
 	"golang.org/x/oauth2"
 )
 
 var (
 	FusionAuthConfig *oauth2.Config
-	// TODO: randomize it
-	oauthStateString = "pseudo-random1"
+	oauthStateString = randstr.Hex(16)
 )
 
 func init() {
 	FusionAuthConfig = &oauth2.Config{
-		RedirectURL:  "http://localhost:8080/callback",
-		ClientID:     "7d2b4cb4-ccd5-42ac-8469-f802393c8f98",
-		Scopes:       []string{"email"},
+		RedirectURL: "http://localhost:8080/callback",
+		ClientID:    "7d2b4cb4-ccd5-42ac-8469-f802393c8f98",
+		Scopes:      []string{"openid"},
 		Endpoint: oauth2.Endpoint{
 			AuthURL:  "http://localhost:9011/oauth2/authorize",
 			TokenURL: "http://localhost:9011/oauth2/token",
@@ -46,8 +45,7 @@ func handleMain(w http.ResponseWriter, r *http.Request) {
 
 func handleFusionAuthLogin(w http.ResponseWriter, r *http.Request) {
 	url := FusionAuthConfig.AuthCodeURL(oauthStateString)
-	
-	// fmt.Println(url)
+
 	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 }
 
@@ -71,9 +69,9 @@ func getUserInfo(state string, code string) ([]byte, error) {
 	if err != nil {
 		return nil, fmt.Errorf("code exchange failed: %s", err.Error())
 	}
-	
+
 	url := "http://localhost:9011/oauth2/userinfo"
-	var bearer = "Bearer "+token.AccessToken
+	var bearer = "Bearer " + token.AccessToken
 	req, err := http.NewRequest("GET", url, nil)
 	req.Header.Add("Authorization", bearer)
 	client := &http.Client{}
@@ -83,7 +81,7 @@ func getUserInfo(state string, code string) ([]byte, error) {
 		return nil, fmt.Errorf("failed getting user info: %s", err.Error())
 	}
 
-	defer response.Body.Close() 
+	defer response.Body.Close()
 	contents, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		return nil, fmt.Errorf("failed reading response body: %s", err.Error())
