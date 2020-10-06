@@ -7,16 +7,21 @@ Simple demo for using [FusionAuth](http://fusionauth.io/) with Golang.
 clone with git first
 
 ```bash
-git clone https://github.com/krissnawat/fusionauth-go
+git clone https://github.com/fusionauth/fusionauth-example-go
 ```
 
 ## Usage
 
-```go
+Assuming you've configured FusionAuth with a new application, update `main.go` with the client ID.
+
+```shell
+go get github.com/thanhpk/randstr
+go get golang.org/x/oauth2
 go run main.go
 ```
 
 ## Contributing
+
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 
 Please make sure to update tests as appropriate.
