@@ -17,13 +17,13 @@ var (
 func init() {
 	FusionAuthConfig = &oauth2.Config{
 		RedirectURL: "http://localhost:8080/callback",
-		ClientID:    "your fusion auth app id",
-		ClientSecret: "your fusion auth app secret",
+		ClientID:    "7d2b4cb4-ccd5-42ac-8469-f802393c8f98",
+		ClientSecret: "6x9GI_FUs5TBt_ql0m1CxNy962L7SEf0Kx2KxsY7WYw",
 		Scopes:      []string{"openid"},
 		Endpoint: oauth2.Endpoint{
 			AuthURL:  "http://localhost:9011/oauth2/authorize",
 			TokenURL: "http://localhost:9011/oauth2/token",
-			AuthStyle: oauth2.AuthStyleInHeader
+			AuthStyle: oauth2.AuthStyleInHeader,
 		},
 	}
 }
