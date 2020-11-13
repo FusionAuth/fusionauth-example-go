@@ -4,6 +4,8 @@ Simple demo for using [FusionAuth](http://fusionauth.io/) with Golang.
 
 You can view the corresponding blog post: https://fusionauth.io/blog/2020/10/22/securing-a-golang-app-with-oauth/
 
+This application will use an OAuth Authorization Code workflow and the PKCE extension to log users in. PKCE stands for Proof Key for Code Exchange, and is often pronounced “pixie”.
+
 ## Installation
 
 clone with git first
@@ -19,6 +21,7 @@ Assuming you've configured FusionAuth with a new application, update `main.go` w
 ```shell
 go get github.com/thanhpk/randstr
 go get golang.org/x/oauth2
+go get github.com/nirasan/go-oauth-pkce-code-verifier
 go run main.go
 ```
 
