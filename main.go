@@ -4,25 +4,30 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-
 	"github.com/thanhpk/randstr"
 	"golang.org/x/oauth2"
+	cv "github.com/nirasan/go-oauth-pkce-code-verifier"
 )
 
 var (
 	FusionAuthConfig *oauth2.Config
 	oauthStateString = randstr.Hex(16)
+	// initialize the code verifier
+	CodeVerifier, _ = cv.CreateCodeVerifier()
+
+	// Create code_challenge with S256 method
+	codeChallenge = CodeVerifier.CodeChallengeS256()
 )
 
 func init() {
 	FusionAuthConfig = &oauth2.Config{
-		RedirectURL: "http://localhost:8080/callback",
-		ClientID:    "7d2b4cb4-ccd5-42ac-8469-f802393c8f98",
-		ClientSecret: "6x9GI_FUs5TBt_ql0m1CxNy962L7SEf0Kx2KxsY7WYw",
-		Scopes:      []string{"openid"},
+		RedirectURL:  "http://localhost:8080/callback",
+		ClientID:     "c671e83a-8cc4-4444-b44d-d5a4c581633b",
+		ClientSecret: "2HYT86lWSAntc-mvtHLX5XXEpk9ThcqZb4YEh65CLjA",
+		Scopes:       []string{"openid"},
 		Endpoint: oauth2.Endpoint{
-			AuthURL:  "http://localhost:9011/oauth2/authorize",
-			TokenURL: "http://localhost:9011/oauth2/token",
+			AuthURL:   "http://localhost:9011/oauth2/authorize",
+			TokenURL:  "http://localhost:9011/oauth2/token",
 			AuthStyle: oauth2.AuthStyleInHeader,
 		},
 	}
@@ -37,17 +42,15 @@ func main() {
 
 func handleMain(w http.ResponseWriter, r *http.Request) {
 	var htmlIndex = `<html>
-<body>
-	<a href="/login">FusionAuth Log In</a>
-</body>
-</html>`
-
+		<body>
+			<a href="/login">FusionAuth Log In</a>
+		</body>
+		</html>`
 	fmt.Fprintf(w, htmlIndex)
 }
 
 func handleFusionAuthLogin(w http.ResponseWriter, r *http.Request) {
-	url := FusionAuthConfig.AuthCodeURL(oauthStateString)
-
+	url := FusionAuthConfig.AuthCodeURL(oauthStateString, oauth2.SetAuthURLParam("code_challenge", codeChallenge), oauth2.SetAuthURLParam("code_challenge_method", "S256"))
 	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 }
 
@@ -67,7 +70,7 @@ func getUserInfo(state string, code string) ([]byte, error) {
 		return nil, fmt.Errorf("invalid oauth state")
 	}
 
-	token, err := FusionAuthConfig.Exchange(oauth2.NoContext, code)
+	token, err := FusionAuthConfig.Exchange(oauth2.NoContext, code, oauth2.SetAuthURLParam("code_verifier", CodeVerifier.String()))
 	if err != nil {
 		return nil, fmt.Errorf("code exchange failed: %s", err.Error())
 	}
