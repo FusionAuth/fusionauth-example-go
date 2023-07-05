@@ -24,27 +24,19 @@ func handleMain(w http.ResponseWriter, r *http.Request) {
   WriteWebPage(w, "home.html", nil)
   return
 }
-//end::baseApplication[]
 
-//tag::loginRoute[]
 func handleFusionAuthLogin(w http.ResponseWriter, r *http.Request) {
   http.Redirect(w, r, "/", http.StatusFound)
 }
-//end::loginRoute[]
 
-//tag::callbackRoute[]
 func handleFusionAuthCallback(w http.ResponseWriter, r *http.Request) {
   http.Redirect(w, r, "/", http.StatusFound)
 }
-//end::callbackRoute[]
 
-//tag::accountRoute[]
 func handleAccount(w http.ResponseWriter, r *http.Request) {
   http.Redirect(w, r, "/", http.StatusFound)
 }
-//end::accountRoute[]
 
-//tag::logoutRoute[]
 func handleLogout(w http.ResponseWriter, r *http.Request) {
 }
-//end::logoutRoute[]
+//end::baseApplication[]
