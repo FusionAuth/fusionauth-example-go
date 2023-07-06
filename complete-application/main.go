@@ -17,6 +17,7 @@ type AccountVars struct {
   Email string
 }
 
+//tag::oidcConstants[]
 const (
   FusionAuthHost string = "http://localhost:9011"
   FusionAuthTenantID string = "d7d09513-a3f5-401c-9685-34ab6c552453"
@@ -26,7 +27,9 @@ const (
   RefreshTokenCookieName string = "cb_refresh_token"
   IDTokenCookieName string = "cb_id_token"
 )
+//end::oidcConstants[]
 
+//tag::oidcClient[]
 var (
   oidcProvider *oidc.Provider 
   fusionAuthConfig *oauth2.Config
@@ -55,16 +58,17 @@ func init() {
     }
   }
 }
+//tag::oidcClient[]
 
 func main() {
-  if fusionAuthConfig == nil {
-    fmt.Println("Error configuring OAuth, exiting");
-    os.Exit(1);
-  }
+//  if fusionAuthConfig == nil {
+//    fmt.Println("Error configuring OAuth, exiting");
+//    os.Exit(1);
+//  }
 
   http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
   http.HandleFunc("/", handleMain)
-  http.HandleFunc("/login", handleFusionAuthLogin)
+  http.HandleFunc("/login", handleLoginRequest)
   http.HandleFunc("/callback", handleFusionAuthCallback)
   http.HandleFunc("/account", handleAccount)
   http.HandleFunc("/logout", handleLogout)
@@ -81,13 +85,8 @@ func handleMain(w http.ResponseWriter, r *http.Request) {
   // see if the user is authenticated. In a real application, we would validate the token signature and expiration
   _, err := r.Cookie(AccessTokenCookieName)
 
-  if errors.Is(err, http.ErrNoCookie) {
-    WriteWebPage(w, "home.html", nil)
-    return
-  }
-
   if err != nil {
-    http.Error(w, "Error getting access token: " + err.Error(), http.StatusInternalServerError)
+    WriteWebPage(w, "home.html", nil)
     return
   }
 
@@ -98,7 +97,7 @@ func handleMain(w http.ResponseWriter, r *http.Request) {
 //end::main[]
 
 //tag::loginRoute[]
-func handleFusionAuthLogin(w http.ResponseWriter, r *http.Request) {
+func handleLoginRequest(w http.ResponseWriter, r *http.Request) {
   http.Redirect(w, r, fusionAuthConfig.AuthCodeURL(oauthStateString), http.StatusFound)
 }
 //end::loginRoute[]
@@ -112,7 +111,7 @@ func handleFusionAuthCallback(w http.ResponseWriter, r *http.Request) {
     return
   }
 
-  // Get the access, refresh, and id tokens
+  // Exchange the authorization code for access, refresh, and id tokens
   token, err := fusionAuthConfig.Exchange(oauth2.NoContext, r.FormValue("code"))
 
   if err != nil {
@@ -149,11 +148,11 @@ func handleAccount(w http.ResponseWriter, r *http.Request) {
   cookie, err := r.Cookie(AccessTokenCookieName)
 
   if err != nil || cookie == nil {
-    http.Redirect(w, r, getLogoutUrl(), http.StatusFound)
+    http.Redirect(w, r, "/", http.StatusFound)
     return
   }
 
-  // Now get the ID token
+  // Now get the ID token so we can show the user's email address
   cookie, err = r.Cookie(IDTokenCookieName)
 
   if err != nil || cookie == nil{
