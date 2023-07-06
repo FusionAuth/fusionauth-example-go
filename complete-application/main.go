@@ -58,7 +58,7 @@ func init() {
     }
   }
 }
-//tag::oidcClient[]
+//end::oidcClient[]
 
 func main() {
 //  if fusionAuthConfig == nil {
