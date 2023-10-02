@@ -1,3 +1,6 @@
+# Archived
+A new version of this repo is available here: [Go Resource Server with FusionAuth](https://github.com/FusionAuth/fusionauth-quickstart-golang-api).
+
 # The Example For using FusionAuth and Golang
 
 Simple demo for using [FusionAuth](http://fusionauth.io/) with Golang.
